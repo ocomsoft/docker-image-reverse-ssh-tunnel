@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/ash
+# /bin/bash
+
+set -x
 
 if [ "${ROOT_PASS}" == "**None**" ]; then
     unset ROOT_PASS
@@ -80,5 +83,5 @@ else
     if [ ! -f /.root_pw_set ]; then
 	    SetRootPass
     fi
-    exec /usr/sbin/sshd -D
+    exec /usr/sbin/sshd -D -d
 fi

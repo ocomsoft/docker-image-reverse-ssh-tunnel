@@ -1,17 +1,15 @@
-FROM ubuntu:trusty
-MAINTAINER Feng Honglin <hfeng@tutum.co>
+FROM alpine
 
-RUN apt-get update && \
-    apt-get -y --no-install-recommends install openssh-server autossh pwgen sshpass && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists && \
-    mkdir -p /var/run/sshd && \
+RUN apk add --no-cache autossh openssh curl ca-certificates && \
+    curl -L -o /usr/local/bin/dumb-init https://github.com/Yelp/dumb-init/releases/download/v1.2.0/dumb-init_1.2.0_amd64  && \
+    chmod +x /usr/local/bin/dumb-init
+
+RUN mkdir -p /var/run/sshd && \
     mkdir -p /root/.ssh && \
     sed -i "s/UsePrivilegeSeparation.*/UsePrivilegeSeparation no/g" /etc/ssh/sshd_config && \
     sed -i "s/UsePAM.*/UsePAM no/g" /etc/ssh/sshd_config && \
     sed -i "s/PermitRootLogin.*/PermitRootLogin yes/g" /etc/ssh/sshd_config && \
-    echo "GatewayPorts yes" >> /etc/ssh/sshd_config && \
-    rm -rf /var/lib/apt/lists/*
+    echo "GatewayPorts yes" >> /etc/ssh/sshd_config
 
 ADD run.sh /run.sh
 RUN chmod +x /*.sh
@@ -25,4 +23,4 @@ ENV PROXY_PORT **None**
 EXPOSE 22
 EXPOSE 1080
 
-CMD ["/run.sh"]
+ENTRYPOINT ["/usr/local/bin/dumb-init", "--", "/run.sh"]
